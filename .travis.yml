@@ -1,0 +1,12 @@
+language: rust
+before_install:
+  - sudo apt-get install -y libsensors4-dev
+rust:
+  - 1.26.0  # Oldest supported version
+  - stable
+  - beta
+  - nightly
+matrix:
+  allow_failures:
+    - rust: nightly
+  fast_finish: true
