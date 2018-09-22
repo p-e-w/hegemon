@@ -3,6 +3,8 @@
 Hegemon is a **work-in-progress** [modular](#adding-new-data-streams) system monitor
 written in safe Rust.
 
+![Screencast](https://user-images.githubusercontent.com/2702526/45913619-818f1100-be53-11e8-8138-6ddfe42e15af.gif)
+
 Currently, it has the following features:
 
 - Monitor CPU and memory usage, temperatures, and fan speeds
