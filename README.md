@@ -1,6 +1,7 @@
 ## Introducing Hegemon
 
 [![Crates.io](https://img.shields.io/crates/v/hegemon.svg)](https://crates.io/crates/hegemon)
+[![Build Status](https://travis-ci.org/p-e-w/hegemon.svg?branch=master)](https://travis-ci.org/p-e-w/hegemon)
 
 Hegemon is a **work-in-progress** [modular](#adding-new-data-streams) system monitor
 written in safe Rust.
