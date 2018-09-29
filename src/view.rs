@@ -432,12 +432,8 @@ pub fn format_quantity(
 
     let magnitude = if use_prefix && quantity != 0.0 {
         let m = (quantity.abs().log10() / 3.0).floor() as i32;
-        let p = precision as i32;
 
-        // Scaled quantity, rounded to precision
-        let q = (quantity / 10.0_f64.powi((3 * m) - p)).round() / 10.0_f64.powi(p);
-
-        if q == 1000.0 {
+        if format!("{:.*}", precision, quantity / 10.0_f64.powi(3 * m)).starts_with("1000") {
             // Rounding will increase the apparent magnitude
             m + 1
         } else {
@@ -485,8 +481,8 @@ fn format_duration(duration: Duration, number_style: impl Display, unit_style: i
 
     let mut string = String::new();
 
-    for (unit, factor) in vec![("h", 3600), ("m", 60), ("s", 1)] {
-        if seconds >= factor {
+    for (unit, factor) in &[("h", 3600), ("m", 60), ("s", 1)] {
+        if seconds >= *factor {
             string.push_str(&format!("{}{}{}{}", number_style, seconds / factor, unit_style, unit));
             seconds %= factor;
         }
@@ -538,11 +534,11 @@ mod tests {
         assert_eq!(format_quantity(1000.0, "C", true, 0, "A", "B"), "A1BkC");
         assert_eq!(format_quantity(0.9999, "C", true, 0, "A", "B"), "A1BC");
         assert_eq!(format_quantity(999.9, "C", true, 0, "A", "B"), "A1BkC");
-        assert_eq!(format_quantity(999900.0, "C", true, 0, "A", "B"), "A1BMC");
-        assert_eq!(format_quantity(123456789.0, "C", true, 3, "A", "B"), "A123.457BMC");
-        assert_eq!(format_quantity(123456789.0, "C", false, 3, "A", "B"), "A123456789BC");
-        assert_eq!(format_quantity(-0.00000000123456789, "C", true, 3, "A", "B"), "A-1.235BnC");
-        assert_eq!(format_quantity(-0.00000000123456789, "C", false, 3, "A", "B"), "A-0BC");
+        assert_eq!(format_quantity(999_900.0, "C", true, 0, "A", "B"), "A1BMC");
+        assert_eq!(format_quantity(123_456_789.0, "C", true, 3, "A", "B"), "A123.457BMC");
+        assert_eq!(format_quantity(123_456_789.0, "C", false, 3, "A", "B"), "A123456789BC");
+        assert_eq!(format_quantity(-0.000_000_001_234_567_89, "C", true, 3, "A", "B"), "A-1.235BnC");
+        assert_eq!(format_quantity(-0.000_000_001_234_567_89, "C", false, 3, "A", "B"), "A-0BC");
         assert_eq!(format_quantity(10.0_f64.powi(100), "C", true, 0, "A", "B"), "A10B?C");
         assert_eq!(format_quantity(10.0_f64.powi(-100), "C", true, 0, "A", "B"), "A100B?C");
     }
@@ -557,7 +553,7 @@ mod tests {
         assert_eq!(format_duration(Duration::from_secs(3660), "A", "B"), "A1BhA1Bm");
         assert_eq!(format_duration(Duration::from_secs(3601), "A", "B"), "A1BhA1Bs");
         assert_eq!(format_duration(Duration::from_secs(3661), "A", "B"), "A1BhA1BmA1Bs");
-        assert_eq!(format_duration(Duration::from_secs(100000), "A", "B"), "A27BhA46BmA40Bs");
+        assert_eq!(format_duration(Duration::from_secs(100_000), "A", "B"), "A27BhA46BmA40Bs");
     }
 
     #[test]

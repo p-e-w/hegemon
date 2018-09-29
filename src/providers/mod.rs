@@ -44,10 +44,10 @@ fn subfeatures(feature_type: FeatureType, subfeature_type: SubfeatureType) -> Ve
     for chip in Sensors::new() {
         if let Ok(chip_name) = chip.get_name() {
             for feature in chip {
-                if feature.feature_type().clone() == feature_type {
+                if *feature.feature_type() == feature_type {
                     if let Ok(feature_label) = feature.get_label() {
                         for subfeature in feature {
-                            if subfeature.subfeature_type().clone() == subfeature_type {
+                            if *subfeature.subfeature_type() == subfeature_type {
                                 subfeatures.push((subfeature, feature_label.clone(), chip_name.clone()));
                             }
                         }

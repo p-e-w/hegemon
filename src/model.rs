@@ -94,7 +94,7 @@ impl Application {
         self.streams.iter().filter(|s| s.active).collect()
     }
 
-    pub fn handle(&mut self, event: Event) -> bool {
+    pub fn handle(&mut self, event: &Event) -> bool {
         match self.screen {
             Screen::Main => {
                 match event {
@@ -153,18 +153,13 @@ impl Application {
                             _ => {}
                         }
                     }
-                    Event::Mouse(mouse_event) => {
-                        match mouse_event {
-                            MouseEvent::Press(mouse_button, _, _) => {
-                                match mouse_button {
-                                    MouseButton::WheelUp => {
-                                        return self.handle(Event::Key(Key::Down));
-                                    }
-                                    MouseButton::WheelDown => {
-                                        return self.handle(Event::Key(Key::Up));
-                                    }
-                                    _ => {}
-                                }
+                    Event::Mouse(MouseEvent::Press(mouse_button, _, _)) => {
+                        match mouse_button {
+                            MouseButton::WheelUp => {
+                                return self.handle(&Event::Key(Key::Down));
+                            }
+                            MouseButton::WheelDown => {
+                                return self.handle(&Event::Key(Key::Up));
                             }
                             _ => {}
                         }
@@ -177,9 +172,28 @@ impl Application {
                 match event {
                     Event::Key(key) => {
                         match key {
+                            Key::Up => {
+                            }
+                            Key::Down => {
+                            }
+                            Key::Char(' ') => {
+                            }
+                            Key::Char('+') => {
+                            }
+                            Key::Char('-') => {
+                            }
                             Key::Esc => {
                                 self.screen = Screen::Main;
                                 return true;
+                            }
+                            _ => {}
+                        }
+                    }
+                    Event::Mouse(MouseEvent::Press(mouse_button, _, _)) => {
+                        match mouse_button {
+                            MouseButton::WheelUp => {
+                            }
+                            MouseButton::WheelDown => {
                             }
                             _ => {}
                         }

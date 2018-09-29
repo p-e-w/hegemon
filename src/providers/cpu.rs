@@ -35,7 +35,7 @@ impl StreamProvider for CPUStreamProvider {
             move || {
                 let value = if let Ok(ref load) = load {
                     if let Ok(load) = load.done() {
-                        Some(((1.0 - load.idle) * 100.0) as f64)
+                        Some(f64::from((1.0 - load.idle) * 100.0))
                     } else {
                         None
                     }
@@ -64,7 +64,7 @@ impl StreamProvider for CPUStreamProvider {
                         move || {
                             let value = if let Ok(ref load) = load {
                                 if let Ok(load) = load.done() {
-                                    Some(((1.0 - load[i].idle) * 100.0) as f64)
+                                    Some(f64::from((1.0 - load[i].idle) * 100.0))
                                 } else {
                                     None
                                 }

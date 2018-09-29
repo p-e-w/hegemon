@@ -55,7 +55,7 @@ fn main() {
             input.recv() -> event => {
                 let interval_index = application.interval_index;
 
-                if application.handle(event.unwrap()) {
+                if application.handle(&event.unwrap()) {
                     if !application.running {
                         break;
                     }
