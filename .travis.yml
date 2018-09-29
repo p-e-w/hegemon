@@ -1,18 +1,23 @@
 language: rust
+
 rust:
   - 1.26.0  # Oldest supported version
   - stable
   - beta
   - nightly
+
 matrix:
   allow_failures:
     - rust: nightly
   fast_finish: true
+
 before_install:
   - sudo apt-get install -y libsensors4-dev
+
 before_script:
-  - rustup component add clippy-preview
+  - if [ "$TRAVIS_RUST_VERSION" = "stable" ]; then rustup component add clippy-preview; fi
+
 script:
   - cargo build --verbose
   - cargo test --verbose
-  - cargo clippy --all-targets --all-features -- -D warnings
+  - if [ "$TRAVIS_RUST_VERSION" = "stable" ]; then cargo clippy --all-targets --all-features -- -D warnings; fi
