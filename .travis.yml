@@ -1,6 +1,4 @@
 language: rust
-before_install:
-  - sudo apt-get install -y libsensors4-dev
 rust:
   - 1.26.0  # Oldest supported version
   - stable
@@ -10,3 +8,11 @@ matrix:
   allow_failures:
     - rust: nightly
   fast_finish: true
+before_install:
+  - sudo apt-get install -y libsensors4-dev
+before_script:
+  - rustup component add clippy-preview
+script:
+  - cargo build --verbose
+  - cargo test --verbose
+  - cargo clippy --all-targets --all-features -- -D warnings
