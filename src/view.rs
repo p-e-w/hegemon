@@ -206,6 +206,7 @@ impl Application {
 }
 
 impl StreamWrapper {
+    #[cfg_attr(feature = "cargo-clippy", allow(too_many_arguments))]
     fn render(
         &self,
         index: usize,

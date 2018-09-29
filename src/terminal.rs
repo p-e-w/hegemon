@@ -30,6 +30,7 @@ const ENABLE_AUTO_WRAP: &str = "\x1B[?7h";
 const DISABLE_AUTO_WRAP: &str = "\x1B[?7l";
 
 pub struct Terminal {
+    #[allow(dead_code)]
     wrapper: Box<Write>,
     pub input: Receiver<Event>,
     pub resize: Receiver<Signal>,
