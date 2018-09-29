@@ -56,6 +56,7 @@ mod tests {
     use super::*;
 
     #[test]
+    #[ignore]
     fn test_fan_stream_provider() {
         let streams = FanStreamProvider{}.streams();
         assert!(!streams.is_empty());

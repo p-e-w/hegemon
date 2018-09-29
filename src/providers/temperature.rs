@@ -64,6 +64,7 @@ mod tests {
     use super::*;
 
     #[test]
+    #[ignore]
     fn test_temperature_stream_provider() {
         let streams = TemperatureStreamProvider{}.streams();
         assert!(!streams.is_empty());
