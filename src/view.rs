@@ -14,17 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-use std::f64;
 use std::cmp::max;
+use std::f64;
 use std::fmt::Display;
 use std::time::Duration;
 
-use termion::{cursor, clear};
-use termion::color::{Fg, Bg};
-use termion::style::Reset;
 use regex::Regex;
+use termion::color::{Bg, Fg};
+use termion::style::Reset;
+use termion::{clear, cursor};
 
-use model::{Application, Screen, StreamWrapper, ScrollAnchor, MenuItem};
+use model::{Application, MenuItem, Screen, ScrollAnchor, StreamWrapper};
 use theme::Theme;
 
 const EXPANDED_GRAPH_HEIGHT: usize = 5;
@@ -33,14 +33,7 @@ const STATS_LABEL: &str = "lo/hi/avg";
 
 const DOT: &str = "\u{2022}";
 const BARS: &[&str] = &[
-    "\u{2581}",
-    "\u{2582}",
-    "\u{2583}",
-    "\u{2584}",
-    "\u{2585}",
-    "\u{2586}",
-    "\u{2587}",
-    "\u{2588}",
+    "\u{2581}", "\u{2582}", "\u{2583}", "\u{2584}", "\u{2585}", "\u{2586}", "\u{2587}", "\u{2588}",
 ];
 
 impl Application {
@@ -67,11 +60,8 @@ impl Application {
 
                 for i in (1..=full_intervals).rev() {
                     let time = interval.duration * ((i * interval.tick_spacing) as u32);
-                    let time_string = format_duration(
-                        time,
-                        Fg(theme.top_bar_number_color),
-                        Fg(theme.top_bar_unit_color),
-                    );
+                    let time_string =
+                        format_duration(time, Fg(theme.top_bar_number_color), Fg(theme.top_bar_unit_color));
                     string.push_str(&pad_right(time_string, interval.tick_spacing));
                 }
 
@@ -132,7 +122,8 @@ impl Application {
 
                     let tick = format!("{} {}", Bg(theme.tick_color), Bg(background_color));
 
-                    let empty_line = format!("\n\r{}{}{}{}{}",
+                    let empty_line = format!(
+                        "\n\r{}{}{}{}{}",
                         Bg(background_color),
                         " ".repeat(first_tick_padding),
                         format!("{}{}", tick, " ".repeat(interval.tick_spacing - 1)).repeat(full_intervals),
@@ -147,7 +138,8 @@ impl Application {
             Screen::Streams => {
                 let message = ellipsize("Stream selection is not implemented yet", self.width);
 
-                string.push_str(&format!("{}{}{}",
+                string.push_str(&format!(
+                    "{}{}{}",
                     Fg(theme.stream_name_color),
                     Bg(theme.stream_odd_background_color),
                     pad_right(message, self.width),
@@ -160,7 +152,11 @@ impl Application {
         // Render bottom bar
         let (left_menu, right_menu) = self.menu();
         let left_menu_string = left_menu.iter().map(|m| m.render(theme)).collect::<Vec<_>>().join("  ");
-        let right_menu_string = right_menu.iter().map(|m| m.render(theme)).collect::<Vec<_>>().join("  ");
+        let right_menu_string = right_menu
+            .iter()
+            .map(|m| m.render(theme))
+            .collect::<Vec<_>>()
+            .join("  ");
 
         let mut menu_width = printed_width(&left_menu_string) + 2 + printed_width(&right_menu_string) + 1;
 
@@ -186,19 +182,28 @@ impl Application {
     }
 
     fn name_width(&self) -> usize {
-        self.active_streams().iter().map(|s| max(
-            // Any name ...
-            printed_width(s.stream.name()),
-            // ... and any value must fit, because the name column
-            // also displays values (tick labels) for expanded streams
-            s.stream.format_width(),
-        )).max().unwrap_or(0)
+        self.active_streams()
+            .iter()
+            .map(|s| {
+                max(
+                    // Any name ...
+                    printed_width(s.stream.name()),
+                    // ... and any value must fit, because the name column
+                    // also displays values (tick labels) for expanded streams
+                    s.stream.format_width(),
+                )
+            }).max()
+            .unwrap_or(0)
     }
 
     fn value_width(&self) -> usize {
         max(
             // Any value ...
-            self.active_streams().iter().map(|s| s.stream.format_width()).max().unwrap_or(0),
+            self.active_streams()
+                .iter()
+                .map(|s| s.stream.format_width())
+                .max()
+                .unwrap_or(0),
             // ... and the stats label must fit
             printed_width(STATS_LABEL),
         )
@@ -234,23 +239,27 @@ impl StreamWrapper {
 
             for (i, value) in values.iter().enumerate() {
                 let symbol = match value {
-                    Some(number) => BARS[if min < max {
-                        let level = (number - min) / (max - min);
-                        let bucket = (level * (BARS.len() as f64)).ceil() as usize;
-                        if bucket == 0 {
-                            0
+                    Some(number) => {
+                        let bar_index = if min < max {
+                            let level = (number - min) / (max - min);
+                            let bucket = (level * (BARS.len() as f64)).ceil() as usize;
+                            if bucket == 0 {
+                                0
+                            } else {
+                                bucket - 1
+                            }
                         } else {
-                            bucket - 1
-                        }
-                    } else {
-                        0
-                    }],
+                            0
+                        };
+                        BARS[bar_index]
+                    }
                     None => DOT,
                 };
 
                 if ((graph_width - 1) - i) % tick_spacing == 0 {
                     // Tick intersection
-                    graph.push_str(&format!("{}{}{}{}{}",
+                    graph.push_str(&format!(
+                        "{}{}{}{}{}",
                         Fg(graph_color.1),
                         Bg(theme.tick_color),
                         symbol,
@@ -265,11 +274,15 @@ impl StreamWrapper {
             graph
         };
 
-        let values = (1..=graph_width).rev().map(|i| if i <= self.values.len() {
-            self.values[self.values.len() - i]
-        } else {
-            None
-        }).collect::<Vec<_>>();
+        let values = (1..=graph_width)
+            .rev()
+            .map(|i| {
+                if i <= self.values.len() {
+                    self.values[self.values.len() - i]
+                } else {
+                    None
+                }
+            }).collect::<Vec<_>>();
 
         let numbers = values.iter().cloned().filter_map(|v| v).collect::<Vec<_>>();
 
@@ -286,21 +299,26 @@ impl StreamWrapper {
             self.stream.format(numbers[numbers.len() - 1], theme)
         };
 
-        let mut line = format!("{}{}", Fg(if selected {
-            theme.stream_name_selected_text_color
-        } else {
-            theme.stream_name_color
-        }), Bg(if selected {
-            theme.stream_name_selected_background_color
-        } else {
-            background_color
-        }));
+        let mut line = format!(
+            "{}{}",
+            Fg(if selected {
+                theme.stream_name_selected_text_color
+            } else {
+                theme.stream_name_color
+            }),
+            Bg(if selected {
+                theme.stream_name_selected_background_color
+            } else {
+                background_color
+            }),
+        );
 
         line.push_str(&pad_left(self.stream.name(), name_width));
         line.push_str(&format!("{} ", Bg(background_color)));
 
         if self.expanded {
-            line.push_str(&format!("{}{} {}",
+            line.push_str(&format!(
+                "{}{} {}",
                 Fg(theme.stream_description_color),
                 pad_right(ellipsize(self.stream.description(), graph_width), graph_width),
                 pad_right(value_string, value_width),
@@ -315,13 +333,19 @@ impl StreamWrapper {
                 let row_min = min + (row_height * (i as f64));
                 let row_max = row_min + row_height;
 
-                let row_values = values.iter().map(|v| v.and_then(|number| if number < row_min {
-                    None
-                } else if number > row_max {
-                    Some(row_max)
-                } else {
-                    Some(number)
-                })).collect::<Vec<_>>();
+                let row_values = values
+                    .iter()
+                    .map(|v| {
+                        v.and_then(|number| {
+                            if number < row_min {
+                                None
+                            } else if number > row_max {
+                                Some(row_max)
+                            } else {
+                                Some(number)
+                            }
+                        })
+                    }).collect::<Vec<_>>();
 
                 graph_rows.push(graph(row_values, row_min, row_max));
             }
@@ -338,24 +362,26 @@ impl StreamWrapper {
 
             let (stats_label, low_string, high_string, avg_string) =
                 if numbers_min.is_finite() && numbers_max.is_finite() && numbers_avg.is_finite() {
-                (
-                    String::from(STATS_LABEL),
-                    self.stream.format(numbers_min, theme),
-                    self.stream.format(numbers_max, theme),
-                    self.stream.format(numbers_avg, theme),
-                )
-            } else {
-                (String::new(), String::new(), String::new(), String::new())
-            };
+                    (
+                        String::from(STATS_LABEL),
+                        self.stream.format(numbers_min, theme),
+                        self.stream.format(numbers_max, theme),
+                        self.stream.format(numbers_avg, theme),
+                    )
+                } else {
+                    (String::new(), String::new(), String::new(), String::new())
+                };
 
-            lines.push(format!("{}{} {} {}",
+            lines.push(format!(
+                "{}{} {} {}",
                 Bg(background_color),
                 pad_left(max_string, name_width),
                 graph_rows[0],
                 " ".repeat(value_width),
             ));
 
-            lines.push(format!("{}{} {} {}{}",
+            lines.push(format!(
+                "{}{} {} {}{}",
                 Bg(background_color),
                 " ".repeat(name_width),
                 graph_rows[1],
@@ -363,29 +389,32 @@ impl StreamWrapper {
                 pad_right(stats_label, value_width),
             ));
 
-            lines.push(format!("{}{} {} {}",
+            lines.push(format!(
+                "{}{} {} {}",
                 Bg(background_color),
                 pad_left(mid_string, name_width),
                 graph_rows[2],
                 pad_right(low_string, value_width),
             ));
 
-            lines.push(format!("{}{} {} {}",
+            lines.push(format!(
+                "{}{} {} {}",
                 Bg(background_color),
                 " ".repeat(name_width),
                 graph_rows[3],
                 pad_right(high_string, value_width),
             ));
 
-            lines.push(format!("{}{} {} {}",
+            lines.push(format!(
+                "{}{} {} {}",
                 Bg(background_color),
                 pad_left(min_string, name_width),
                 graph_rows[4],
                 pad_right(avg_string, value_width),
             ));
-
         } else {
-            line.push_str(&format!("{} {}",
+            line.push_str(&format!(
+                "{} {}",
                 graph(values, min, max),
                 pad_right(value_string, value_width),
             ));
@@ -407,7 +436,8 @@ impl StreamWrapper {
 
 impl MenuItem {
     fn render(&self, theme: &Theme) -> String {
-        format!("{}{}\u{2590}{}{}{}{}{}\u{258C}{}{}",
+        format!(
+            "{}{}\u{2590}{}{}{}{}{}\u{258C}{}{}",
             Fg(theme.bottom_bar_key_background_color),
             Bg(theme.bottom_bar_color),
             Fg(theme.bottom_bar_key_text_color),
@@ -513,17 +543,29 @@ fn ellipsize(string: impl Into<String>, width: usize) -> String {
 }
 
 fn pad_left(string: impl AsRef<str>, width: usize) -> String {
-    format!("{}{}", " ".repeat(width - printed_width(string.as_ref())), string.as_ref())
+    format!(
+        "{}{}",
+        " ".repeat(width - printed_width(string.as_ref())),
+        string.as_ref(),
+    )
 }
 
 fn pad_right(string: impl AsRef<str>, width: usize) -> String {
-    format!("{}{}", string.as_ref(), " ".repeat(width - printed_width(string.as_ref())))
+    format!(
+        "{}{}",
+        string.as_ref(),
+        " ".repeat(width - printed_width(string.as_ref())),
+    )
 }
 
 #[cfg(test)]
 mod tests {
+    use termion::{
+        color::{Bg, Fg, Green, Red},
+        style::Bold,
+    };
+
     use super::*;
-    use termion::{color::{Fg, Bg, Red, Green}, style::Bold};
 
     #[test]
     fn test_format_quantity() {
@@ -538,8 +580,14 @@ mod tests {
         assert_eq!(format_quantity(999_900.0, "C", true, 0, "A", "B"), "A1BMC");
         assert_eq!(format_quantity(123_456_789.0, "C", true, 3, "A", "B"), "A123.457BMC");
         assert_eq!(format_quantity(123_456_789.0, "C", false, 3, "A", "B"), "A123456789BC");
-        assert_eq!(format_quantity(-0.000_000_001_234_567_89, "C", true, 3, "A", "B"), "A-1.235BnC");
-        assert_eq!(format_quantity(-0.000_000_001_234_567_89, "C", false, 3, "A", "B"), "A-0BC");
+        assert_eq!(
+            format_quantity(-0.000_000_001_234_567_89, "C", true, 3, "A", "B"),
+            "A-1.235BnC",
+        );
+        assert_eq!(
+            format_quantity(-0.000_000_001_234_567_89, "C", false, 3, "A", "B"),
+            "A-0BC",
+        );
         assert_eq!(format_quantity(10.0_f64.powi(100), "C", true, 0, "A", "B"), "A10B?C");
         assert_eq!(format_quantity(10.0_f64.powi(-100), "C", true, 0, "A", "B"), "A100B?C");
     }
@@ -554,7 +602,10 @@ mod tests {
         assert_eq!(format_duration(Duration::from_secs(3660), "A", "B"), "A1BhA1Bm");
         assert_eq!(format_duration(Duration::from_secs(3601), "A", "B"), "A1BhA1Bs");
         assert_eq!(format_duration(Duration::from_secs(3661), "A", "B"), "A1BhA1BmA1Bs");
-        assert_eq!(format_duration(Duration::from_secs(100_000), "A", "B"), "A27BhA46BmA40Bs");
+        assert_eq!(
+            format_duration(Duration::from_secs(100_000), "A", "B"),
+            "A27BhA46BmA40Bs",
+        );
     }
 
     #[test]
@@ -564,6 +615,9 @@ mod tests {
         assert_eq!(printed_width("\u{21}\u{2190}\u{1F800}"), 3);
         assert_eq!(printed_width(format!("{}{}{}", Fg(Red), Bg(Green), Bold)), 0);
         assert_eq!(printed_width(format!("ab{}cd{}ef{}gh", Fg(Red), Bg(Green), Bold)), 8);
-        assert_eq!(printed_width(format!("ab\u{21}{}cd\u{2190}{}ef\u{1F800}{}", Fg(Red), Bg(Green), Bold)), 9);
+        assert_eq!(
+            printed_width(format!("ab\u{21}{}cd\u{2190}{}ef\u{1F800}{}", Fg(Red), Bg(Green), Bold)),
+            9,
+        );
     }
 }

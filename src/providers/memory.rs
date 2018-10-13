@@ -14,15 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-use systemstat::{System, Platform};
+use systemstat::{Platform, System};
 
-use stream::{StreamProvider, Stream};
+use stream::{Stream, StreamProvider};
 
 const SWAP_TOTAL: &str = "SwapTotal";
 const SWAP_FREE: &str = "SwapFree";
 
-pub struct MemoryStreamProvider {
-}
+pub struct MemoryStreamProvider {}
 
 impl StreamProvider for MemoryStreamProvider {
     fn streams(&self) -> Vec<Box<Stream>> {
@@ -80,7 +79,7 @@ mod tests {
 
     #[test]
     fn test_memory_stream_provider() {
-        let streams = MemoryStreamProvider{}.streams();
+        let streams = MemoryStreamProvider {}.streams();
         assert!(!streams.is_empty());
     }
 }

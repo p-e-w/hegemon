@@ -17,11 +17,10 @@
 use regex::Regex;
 use sensors::{FeatureType::SENSORS_FEATURE_FAN, SubfeatureType::SENSORS_SUBFEATURE_FAN_INPUT};
 
-use stream::{StreamProvider, Stream};
 use providers::subfeatures;
+use stream::{Stream, StreamProvider};
 
-pub struct FanStreamProvider {
-}
+pub struct FanStreamProvider {}
 
 impl StreamProvider for FanStreamProvider {
     fn streams(&self) -> Vec<Box<Stream>> {
@@ -35,9 +34,7 @@ impl StreamProvider for FanStreamProvider {
             streams.push(Stream::new(
                 format!("{}Fan", name),
                 format!("Fan speed (feature {} on chip {})", feature_label, chip_name),
-                move || {
-                    subfeature.get_value().ok()
-                },
+                move || subfeature.get_value().ok(),
                 None,
                 None,
                 "RPM",
@@ -58,7 +55,7 @@ mod tests {
     #[test]
     #[ignore]
     fn test_fan_stream_provider() {
-        let streams = FanStreamProvider{}.streams();
+        let streams = FanStreamProvider {}.streams();
         assert!(!streams.is_empty());
     }
 }

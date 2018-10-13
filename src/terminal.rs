@@ -17,13 +17,13 @@
 use std::io::{self, Write};
 use std::thread;
 
-use termion::event::Event;
-use termion::input::{TermRead, MouseTerminal};
-use termion::screen::AlternateScreen;
-use termion::raw::IntoRawMode;
-use termion::{self, cursor, clear};
 use chan::{self, Receiver};
 use chan_signal::{self, Signal};
+use termion::event::Event;
+use termion::input::{MouseTerminal, TermRead};
+use termion::raw::IntoRawMode;
+use termion::screen::AlternateScreen;
+use termion::{self, clear, cursor};
 
 // See https://vt100.net/docs/vt102-ug/chapter5.html#S5.5.2.8
 const ENABLE_AUTO_WRAP: &str = "\x1B[?7h";
@@ -51,12 +51,20 @@ impl Terminal {
         });
 
         let terminal = Terminal {
-            wrapper: Box::new(MouseTerminal::from(AlternateScreen::from(io::stdout().into_raw_mode().unwrap()))),
+            wrapper: Box::new(MouseTerminal::from(AlternateScreen::from(
+                io::stdout().into_raw_mode().unwrap(),
+            ))),
             input,
             resize,
         };
 
-        terminal.print(format!("{}{}{}{}", cursor::Hide, clear::All, cursor::Goto(1, 1), DISABLE_AUTO_WRAP));
+        terminal.print(format!(
+            "{}{}{}{}",
+            cursor::Hide,
+            clear::All,
+            cursor::Goto(1, 1),
+            DISABLE_AUTO_WRAP,
+        ));
 
         terminal
     }

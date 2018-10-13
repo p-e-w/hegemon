@@ -18,19 +18,19 @@
 extern crate chan;
 extern crate chan_signal;
 extern crate regex;
-extern crate termion;
-extern crate systemstat;
 extern crate sensors;
+extern crate systemstat;
+extern crate termion;
 
+mod model;
+mod providers;
 mod stream;
 mod terminal;
-mod model;
-mod view;
 mod theme;
-mod providers;
+mod view;
 
-use terminal::Terminal;
 use model::Application;
+use terminal::Terminal;
 use theme::Theme;
 
 fn main() {

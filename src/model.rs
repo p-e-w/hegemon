@@ -14,10 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-use std::time::Duration;
 use std::collections::HashMap;
+use std::time::Duration;
 
-use termion::event::{Event, Key, MouseEvent, MouseButton};
+use termion::event::{Event, Key, MouseButton, MouseEvent};
 
 use stream::Stream;
 
@@ -41,22 +41,30 @@ impl Application {
     pub fn new(width: usize, height: usize, streams: Vec<Box<Stream>>) -> Self {
         let mut menus = HashMap::new();
 
-        menus.insert(Screen::Main, (vec![
-            MenuItem::new("\u{1F805}\u{1F807}", "Select"),
-            MenuItem::new("Space", "Expand"),
-            MenuItem::new("S", "Streams"),
-            MenuItem::new("+-", "Interval"),
-        ], vec![
-            MenuItem::new("Q", "Quit"),
-        ]));
+        menus.insert(
+            Screen::Main,
+            (
+                vec![
+                    MenuItem::new("\u{1F805}\u{1F807}", "Select"),
+                    MenuItem::new("Space", "Expand"),
+                    MenuItem::new("S", "Streams"),
+                    MenuItem::new("+-", "Interval"),
+                ],
+                vec![MenuItem::new("Q", "Quit")],
+            ),
+        );
 
-        menus.insert(Screen::Streams, (vec![
-            MenuItem::new("\u{1F805}\u{1F807}", "Select"),
-            MenuItem::new("Space", "Toggle"),
-            MenuItem::new("+-", "Reorder"),
-        ], vec![
-            MenuItem::new("Esc", "Done"),
-        ]));
+        menus.insert(
+            Screen::Streams,
+            (
+                vec![
+                    MenuItem::new("\u{1F805}\u{1F807}", "Select"),
+                    MenuItem::new("Space", "Toggle"),
+                    MenuItem::new("+-", "Reorder"),
+                ],
+                vec![MenuItem::new("Esc", "Done")],
+            ),
+        );
 
         Application {
             running: true,
@@ -96,111 +104,92 @@ impl Application {
 
     pub fn handle(&mut self, event: &Event) -> bool {
         match self.screen {
-            Screen::Main => {
-                match event {
-                    Event::Key(key) => {
-                        match key {
-                            Key::Up => {
-                                if self.selection_index > 0 {
-                                    self.selection_index -= 1;
-                                    let selection_index = self.selection_index;
-                                    self.scroll_to_stream(selection_index);
-                                    return true;
-                                }
-                            }
-                            Key::Down => {
-                                if self.selection_index < self.active_streams().len() - 1 {
-                                    self.selection_index += 1;
-                                    let selection_index = self.selection_index;
-                                    self.scroll_to_stream(selection_index);
-                                    return true;
-                                }
-                            }
-                            Key::Char(' ') => {
-                                {
-                                    let stream = self
-                                        .streams
-                                        .iter_mut()
-                                        .filter(|s| s.active)
-                                        .nth(self.selection_index)
-                                        .unwrap();
-                                    stream.expanded = !stream.expanded;
-                                }
-                                let selection_index = self.selection_index;
-                                self.scroll_to_stream(selection_index);
-                                return true;
-                            }
-                            Key::Char('s') => {
-                                self.screen = Screen::Streams;
-                                return true;
-                            }
-                            Key::Char('+') => {
-                                if self.interval_index < self.intervals.len() - 1 {
-                                    self.interval_index += 1;
-                                    return true;
-                                }
-                            }
-                            Key::Char('-') => {
-                                if self.interval_index > 0 {
-                                    self.interval_index -= 1;
-                                    return true;
-                                }
-                            }
-                            Key::Char('q') => {
-                                self.running = false;
-                                return true;
-                            }
-                            _ => {}
+            Screen::Main => match event {
+                Event::Key(key) => match key {
+                    Key::Up => {
+                        if self.selection_index > 0 {
+                            self.selection_index -= 1;
+                            let selection_index = self.selection_index;
+                            self.scroll_to_stream(selection_index);
+                            return true;
                         }
                     }
-                    Event::Mouse(MouseEvent::Press(mouse_button, _, _)) => {
-                        match mouse_button {
-                            MouseButton::WheelUp => {
-                                return self.handle(&Event::Key(Key::Down));
-                            }
-                            MouseButton::WheelDown => {
-                                return self.handle(&Event::Key(Key::Up));
-                            }
-                            _ => {}
+                    Key::Down => {
+                        if self.selection_index < self.active_streams().len() - 1 {
+                            self.selection_index += 1;
+                            let selection_index = self.selection_index;
+                            self.scroll_to_stream(selection_index);
+                            return true;
                         }
+                    }
+                    Key::Char(' ') => {
+                        {
+                            let stream = self
+                                .streams
+                                .iter_mut()
+                                .filter(|s| s.active)
+                                .nth(self.selection_index)
+                                .unwrap();
+                            stream.expanded = !stream.expanded;
+                        }
+                        let selection_index = self.selection_index;
+                        self.scroll_to_stream(selection_index);
+                        return true;
+                    }
+                    Key::Char('s') => {
+                        self.screen = Screen::Streams;
+                        return true;
+                    }
+                    Key::Char('+') => {
+                        if self.interval_index < self.intervals.len() - 1 {
+                            self.interval_index += 1;
+                            return true;
+                        }
+                    }
+                    Key::Char('-') => {
+                        if self.interval_index > 0 {
+                            self.interval_index -= 1;
+                            return true;
+                        }
+                    }
+                    Key::Char('q') => {
+                        self.running = false;
+                        return true;
                     }
                     _ => {}
-                }
-            }
+                },
+                Event::Mouse(MouseEvent::Press(mouse_button, _, _)) => match mouse_button {
+                    MouseButton::WheelUp => {
+                        return self.handle(&Event::Key(Key::Down));
+                    }
+                    MouseButton::WheelDown => {
+                        return self.handle(&Event::Key(Key::Up));
+                    }
+                    _ => {}
+                },
+                _ => {}
+            },
 
-            Screen::Streams => {
-                match event {
-                    Event::Key(key) => {
-                        match key {
-                            Key::Up => {
-                            }
-                            Key::Down => {
-                            }
-                            Key::Char(' ') => {
-                            }
-                            Key::Char('+') => {
-                            }
-                            Key::Char('-') => {
-                            }
-                            Key::Esc => {
-                                self.screen = Screen::Main;
-                                return true;
-                            }
-                            _ => {}
-                        }
-                    }
-                    Event::Mouse(MouseEvent::Press(mouse_button, _, _)) => {
-                        match mouse_button {
-                            MouseButton::WheelUp => {
-                            }
-                            MouseButton::WheelDown => {
-                            }
-                            _ => {}
-                        }
+            Screen::Streams => match event {
+                Event::Key(key) => match key {
+                    Key::Up => {}
+                    Key::Down => {}
+                    Key::Char(' ') => {}
+                    Key::Char('+') => {}
+                    Key::Char('-') => {}
+                    Key::Esc => {
+                        self.screen = Screen::Main;
+                        return true;
                     }
                     _ => {}
-                }
-            }
+                },
+                Event::Mouse(MouseEvent::Press(mouse_button, _, _)) => match mouse_button {
+                    MouseButton::WheelUp => {}
+                    MouseButton::WheelDown => {}
+                    _ => {}
+                },
+                _ => {}
+            },
         }
 
         false

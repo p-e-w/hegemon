@@ -16,12 +16,11 @@
 
 use std::io::{self, Error, ErrorKind};
 
-use systemstat::{System, Platform, DelayedMeasurement, CPULoad};
+use systemstat::{CPULoad, DelayedMeasurement, Platform, System};
 
-use stream::{StreamProvider, Stream};
+use stream::{Stream, StreamProvider};
 
-pub struct CPUStreamProvider {
-}
+pub struct CPUStreamProvider {}
 
 impl StreamProvider for CPUStreamProvider {
     fn streams(&self) -> Vec<Box<Stream>> {
@@ -95,7 +94,7 @@ mod tests {
 
     #[test]
     fn test_cpu_stream_provider() {
-        let streams = CPUStreamProvider{}.streams();
+        let streams = CPUStreamProvider {}.streams();
         assert!(!streams.is_empty());
     }
 }

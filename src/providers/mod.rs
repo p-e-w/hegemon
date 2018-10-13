@@ -15,24 +15,24 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 mod cpu;
+mod fan;
 mod memory;
 mod temperature;
-mod fan;
 
-use sensors::{Sensors, FeatureType, SubfeatureType, Subfeature};
+use sensors::{FeatureType, Sensors, Subfeature, SubfeatureType};
 
-use stream::{StreamProvider, Stream};
 use self::cpu::CPUStreamProvider;
+use self::fan::FanStreamProvider;
 use self::memory::MemoryStreamProvider;
 use self::temperature::TemperatureStreamProvider;
-use self::fan::FanStreamProvider;
+use stream::{Stream, StreamProvider};
 
 pub fn streams() -> Vec<Box<Stream>> {
     let providers: Vec<Box<StreamProvider>> = vec![
-        Box::new(CPUStreamProvider{}),
-        Box::new(MemoryStreamProvider{}),
-        Box::new(TemperatureStreamProvider{}),
-        Box::new(FanStreamProvider{}),
+        Box::new(CPUStreamProvider {}),
+        Box::new(MemoryStreamProvider {}),
+        Box::new(TemperatureStreamProvider {}),
+        Box::new(FanStreamProvider {}),
     ];
 
     providers.iter().flat_map(|p| p.streams()).collect()
