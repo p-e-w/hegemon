@@ -14,12 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-use std::collections::HashMap;
+use std::collections::{HashMap, VecDeque};
 use std::time::Duration;
 
 use termion::event::{Event, Key, MouseButton, MouseEvent};
 
 use stream::Stream;
+
+const VALUE_HISTORY_SIZE: usize = 512;
 
 pub struct Application {
     pub running: bool,
@@ -257,7 +259,11 @@ impl Application {
                     }
                 }
 
-                stream.values.push(value);
+                stream.values.push_back(value);
+
+                if stream.values.len() > VALUE_HISTORY_SIZE {
+                    stream.values.pop_front();
+                }
             }
         }
     }
@@ -278,7 +284,7 @@ pub enum Screen {
 
 pub struct StreamWrapper {
     pub stream: Box<Stream>,
-    pub values: Vec<Option<f64>>,
+    pub values: VecDeque<Option<f64>>,
     pub active: bool,
     pub expanded: bool,
 }
@@ -287,7 +293,7 @@ impl StreamWrapper {
     fn new(stream: Box<Stream>) -> Self {
         StreamWrapper {
             stream,
-            values: vec![],
+            values: VecDeque::new(),
             active: true,
             expanded: false,
         }
