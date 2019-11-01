@@ -16,13 +16,13 @@
 
 use sensors::{FeatureType::SENSORS_FEATURE_TEMP, SubfeatureType::SENSORS_SUBFEATURE_TEMP_INPUT};
 
-use providers::subfeatures;
-use stream::{Stream, StreamProvider};
+use crate::providers::subfeatures;
+use crate::stream::{Stream, StreamProvider};
 
 pub struct TemperatureStreamProvider {}
 
 impl StreamProvider for TemperatureStreamProvider {
-    fn streams(&self) -> Vec<Box<Stream>> {
+    fn streams(&self) -> Vec<Box<dyn Stream>> {
         let mut streams = Vec::new();
 
         let mut core_index = 0;

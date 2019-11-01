@@ -16,7 +16,7 @@
 
 use systemstat::{Platform, System};
 
-use stream::{Stream, StreamProvider};
+use crate::stream::{Stream, StreamProvider};
 
 const SWAP_TOTAL: &str = "SwapTotal";
 const SWAP_FREE: &str = "SwapFree";
@@ -24,7 +24,7 @@ const SWAP_FREE: &str = "SwapFree";
 pub struct MemoryStreamProvider {}
 
 impl StreamProvider for MemoryStreamProvider {
-    fn streams(&self) -> Vec<Box<Stream>> {
+    fn streams(&self) -> Vec<Box<dyn Stream>> {
         let mut streams = Vec::new();
 
         if let Ok(memory) = System::new().memory() {

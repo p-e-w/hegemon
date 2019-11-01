@@ -25,10 +25,10 @@ use self::cpu::CPUStreamProvider;
 use self::fan::FanStreamProvider;
 use self::memory::MemoryStreamProvider;
 use self::temperature::TemperatureStreamProvider;
-use stream::{Stream, StreamProvider};
+use crate::stream::{Stream, StreamProvider};
 
-pub fn streams() -> Vec<Box<Stream>> {
-    let providers: Vec<Box<StreamProvider>> = vec![
+pub fn streams() -> Vec<Box<dyn Stream>> {
+    let providers: Vec<Box<dyn StreamProvider>> = vec![
         Box::new(CPUStreamProvider {}),
         Box::new(MemoryStreamProvider {}),
         Box::new(TemperatureStreamProvider {}),

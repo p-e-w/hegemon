@@ -16,12 +16,12 @@
 
 use termion::color::Fg;
 
-use theme::Theme;
-use view::{format_quantity, printed_width};
+use crate::theme::Theme;
+use crate::view::{format_quantity, printed_width};
 
 pub trait StreamProvider {
     /// Returns a list of data stream objects.
-    fn streams(&self) -> Vec<Box<Stream>>;
+    fn streams(&self) -> Vec<Box<dyn Stream>>;
 }
 
 pub trait Stream {
@@ -63,7 +63,7 @@ pub trait Stream {
     fn format_width(&self) -> usize;
 }
 
-impl Stream {
+impl dyn Stream {
     #[cfg_attr(feature = "cargo-clippy", allow(too_many_arguments))]
     pub fn new(
         name: impl Into<String>,
@@ -75,7 +75,7 @@ impl Stream {
         digits_before_decimal: Option<usize>,
         precision: usize,
         signed: bool,
-    ) -> Box<Stream> {
+    ) -> Box<dyn Stream> {
         let unit_1 = unit.into();
         let unit_2 = unit_1.clone();
 
@@ -115,10 +115,10 @@ impl Stream {
 struct SimpleStream {
     name: String,
     description: String,
-    value: Box<FnMut() -> Option<f64>>,
+    value: Box<dyn FnMut() -> Option<f64>>,
     min: Option<f64>,
     max: Option<f64>,
-    format: Box<Fn(f64, &Theme) -> String>,
+    format: Box<dyn Fn(f64, &Theme) -> String>,
     format_width: usize,
 }
 
