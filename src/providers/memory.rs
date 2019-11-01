@@ -33,13 +33,13 @@ impl StreamProvider for MemoryStreamProvider {
                 "Amount of physical memory (RAM) in use",
                 move || {
                     if let Ok(memory) = System::new().memory() {
-                        Some((memory.total - memory.free).as_usize() as f64)
+                        Some((memory.total.as_u64() - memory.free.as_u64()) as f64)
                     } else {
                         None
                     }
                 },
                 Some(0.0),
-                Some(memory.total.as_usize() as f64),
+                Some(memory.total.as_u64() as f64),
                 "B",
                 None,
                 1,
@@ -54,13 +54,13 @@ impl StreamProvider for MemoryStreamProvider {
                     move || {
                         if let Ok(memory) = System::new().memory() {
                             let meminfo = memory.platform_memory.meminfo;
-                            Some((meminfo[SWAP_TOTAL] - meminfo[SWAP_FREE]).as_usize() as f64)
+                            Some((meminfo[SWAP_TOTAL].as_u64() - meminfo[SWAP_FREE].as_u64()) as f64)
                         } else {
                             None
                         }
                     },
                     Some(0.0),
-                    Some(meminfo[SWAP_TOTAL].as_usize() as f64),
+                    Some(meminfo[SWAP_TOTAL].as_u64() as f64),
                     "B",
                     None,
                     1,
