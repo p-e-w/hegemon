@@ -6,6 +6,7 @@ description = "A modular system monitor"
 repository = "https://github.com/p-e-w/hegemon"
 readme = "README.md"
 license = "GPL-3.0-or-later"
+edition = "2015"
 
 [[bin]]
 name = "hegemon"
