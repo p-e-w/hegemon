@@ -64,7 +64,7 @@ pub trait Stream {
 }
 
 impl dyn Stream {
-    #[cfg_attr(feature = "cargo-clippy", allow(too_many_arguments))]
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         name: impl Into<String>,
         description: impl Into<String>,
