@@ -32,7 +32,7 @@ and [sensors](https://github.com/nyantec/sensors) crates.
 
 ## Installation
 
-Hegemon is currently **Linux only** and requires **Rust 1.26 or later** and the
+Hegemon is currently **Linux only** and requires **Rust 1.34 or later** and the
 **development files for [libsensors](https://github.com/lm-sensors/lm-sensors).**
 The latter can be found in the package repository of every major Linux distribution,
 e.g. `lm_sensors-devel` in Fedora and `libsensors4-dev` in Ubuntu.
