@@ -24,8 +24,8 @@ use termion::color::{Bg, Fg};
 use termion::style::Reset;
 use termion::{clear, cursor};
 
-use model::{Application, MenuItem, Screen, ScrollAnchor, StreamWrapper};
-use theme::Theme;
+use crate::model::{Application, MenuItem, Screen, ScrollAnchor, StreamWrapper};
+use crate::theme::Theme;
 
 const EXPANDED_GRAPH_HEIGHT: usize = 5;
 
@@ -192,7 +192,8 @@ impl Application {
                     // also displays values (tick labels) for expanded streams
                     s.stream.format_width(),
                 )
-            }).max()
+            })
+            .max()
             .unwrap_or(0)
     }
 
@@ -211,7 +212,7 @@ impl Application {
 }
 
 impl StreamWrapper {
-    #[cfg_attr(feature = "cargo-clippy", allow(too_many_arguments))]
+    #[allow(clippy::too_many_arguments)]
     fn render(
         &self,
         index: usize,
@@ -282,7 +283,8 @@ impl StreamWrapper {
                 } else {
                     None
                 }
-            }).collect::<Vec<_>>();
+            })
+            .collect::<Vec<_>>();
 
         let numbers = values.iter().cloned().filter_map(|v| v).collect::<Vec<_>>();
 
@@ -345,7 +347,8 @@ impl StreamWrapper {
                                 Some(number)
                             }
                         })
-                    }).collect::<Vec<_>>();
+                    })
+                    .collect::<Vec<_>>();
 
                 graph_rows.push(graph(row_values, row_min, row_max));
             }

@@ -18,12 +18,12 @@ use std::io::{self, Error, ErrorKind};
 
 use systemstat::{CPULoad, DelayedMeasurement, Platform, System};
 
-use stream::{Stream, StreamProvider};
+use crate::stream::{Stream, StreamProvider};
 
 pub struct CPUStreamProvider {}
 
 impl StreamProvider for CPUStreamProvider {
-    fn streams(&self) -> Vec<Box<Stream>> {
+    fn streams(&self) -> Vec<Box<dyn Stream>> {
         let mut streams = Vec::new();
 
         let mut load: io::Result<DelayedMeasurement<CPULoad>> = Err(Error::new(ErrorKind::Other, ""));

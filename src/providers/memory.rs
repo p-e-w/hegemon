@@ -16,7 +16,7 @@
 
 use systemstat::{Platform, System};
 
-use stream::{Stream, StreamProvider};
+use crate::stream::{Stream, StreamProvider};
 
 const SWAP_TOTAL: &str = "SwapTotal";
 const SWAP_FREE: &str = "SwapFree";
@@ -24,7 +24,7 @@ const SWAP_FREE: &str = "SwapFree";
 pub struct MemoryStreamProvider {}
 
 impl StreamProvider for MemoryStreamProvider {
-    fn streams(&self) -> Vec<Box<Stream>> {
+    fn streams(&self) -> Vec<Box<dyn Stream>> {
         let mut streams = Vec::new();
 
         if let Ok(memory) = System::new().memory() {
@@ -33,13 +33,13 @@ impl StreamProvider for MemoryStreamProvider {
                 "Amount of physical memory (RAM) in use",
                 move || {
                     if let Ok(memory) = System::new().memory() {
-                        Some((memory.total - memory.free).as_usize() as f64)
+                        Some((memory.total.as_u64() - memory.free.as_u64()) as f64)
                     } else {
                         None
                     }
                 },
                 Some(0.0),
-                Some(memory.total.as_usize() as f64),
+                Some(memory.total.as_u64() as f64),
                 "B",
                 None,
                 1,
@@ -54,13 +54,13 @@ impl StreamProvider for MemoryStreamProvider {
                     move || {
                         if let Ok(memory) = System::new().memory() {
                             let meminfo = memory.platform_memory.meminfo;
-                            Some((meminfo[SWAP_TOTAL] - meminfo[SWAP_FREE]).as_usize() as f64)
+                            Some((meminfo[SWAP_TOTAL].as_u64() - meminfo[SWAP_FREE].as_u64()) as f64)
                         } else {
                             None
                         }
                     },
                     Some(0.0),
-                    Some(meminfo[SWAP_TOTAL].as_usize() as f64),
+                    Some(meminfo[SWAP_TOTAL].as_u64() as f64),
                     "B",
                     None,
                     1,

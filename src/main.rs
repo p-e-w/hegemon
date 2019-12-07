@@ -29,9 +29,9 @@ mod terminal;
 mod theme;
 mod view;
 
-use model::Application;
-use terminal::Terminal;
-use theme::Theme;
+use crate::model::Application;
+use crate::terminal::Terminal;
+use crate::theme::Theme;
 
 fn main() {
     let terminal = Terminal::new();

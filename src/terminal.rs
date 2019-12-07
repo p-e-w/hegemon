@@ -31,7 +31,7 @@ const DISABLE_AUTO_WRAP: &str = "\x1B[?7l";
 
 pub struct Terminal {
     #[allow(dead_code)]
-    wrapper: Box<Write>,
+    wrapper: Box<dyn Write>,
     pub input: Receiver<Event>,
     pub resize: Receiver<Signal>,
 }
@@ -42,7 +42,7 @@ impl Terminal {
         // as documented in https://docs.rs/chan-signal/0.3.2/chan_signal/fn.notify.html
         let resize = chan_signal::notify(&[Signal::WINCH]);
 
-        let (input_sender, input) = chan::async();
+        let (input_sender, input) = chan::r#async();
 
         thread::spawn(move || {
             for event in io::stdin().events() {

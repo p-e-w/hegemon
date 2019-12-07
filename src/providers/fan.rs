@@ -17,13 +17,13 @@
 use regex::Regex;
 use sensors::{FeatureType::SENSORS_FEATURE_FAN, SubfeatureType::SENSORS_SUBFEATURE_FAN_INPUT};
 
-use providers::subfeatures;
-use stream::{Stream, StreamProvider};
+use crate::providers::subfeatures;
+use crate::stream::{Stream, StreamProvider};
 
 pub struct FanStreamProvider {}
 
 impl StreamProvider for FanStreamProvider {
-    fn streams(&self) -> Vec<Box<Stream>> {
+    fn streams(&self) -> Vec<Box<dyn Stream>> {
         let mut streams = Vec::new();
 
         let regex = Regex::new(r"(?i)fan").unwrap();

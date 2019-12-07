@@ -19,7 +19,7 @@ use std::time::Duration;
 
 use termion::event::{Event, Key, MouseButton, MouseEvent};
 
-use stream::Stream;
+use crate::stream::Stream;
 
 const VALUE_HISTORY_SIZE: usize = 512;
 
@@ -40,7 +40,7 @@ pub struct Application {
 }
 
 impl Application {
-    pub fn new(width: usize, height: usize, streams: Vec<Box<Stream>>) -> Self {
+    pub fn new(width: usize, height: usize, streams: Vec<Box<dyn Stream>>) -> Self {
         let mut menus = HashMap::new();
 
         menus.insert(
@@ -283,14 +283,14 @@ pub enum Screen {
 }
 
 pub struct StreamWrapper {
-    pub stream: Box<Stream>,
+    pub stream: Box<dyn Stream>,
     pub values: VecDeque<Option<f64>>,
     pub active: bool,
     pub expanded: bool,
 }
 
 impl StreamWrapper {
-    fn new(stream: Box<Stream>) -> Self {
+    fn new(stream: Box<dyn Stream>) -> Self {
         StreamWrapper {
             stream,
             values: VecDeque::new(),
