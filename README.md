@@ -76,7 +76,7 @@ instead of manually implementing the `Stream` trait.
 
 ## License
 
-Copyright &copy; 2018  Philipp Emanuel Weidmann (<pew@worldwidemann.com>)
+Copyright &copy; 2018-2019  Philipp Emanuel Weidmann (<pew@worldwidemann.com>)
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

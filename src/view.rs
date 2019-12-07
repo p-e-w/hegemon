@@ -1,5 +1,5 @@
 // Hegemon - A modular system monitor
-// Copyright (C) 2018  Philipp Emanuel Weidmann <pew@worldwidemann.com>
+// Copyright (C) 2018-2019  Philipp Emanuel Weidmann <pew@worldwidemann.com>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
