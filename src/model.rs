@@ -111,31 +111,26 @@ impl Application {
                     Key::Up => {
                         if self.selection_index > 0 {
                             self.selection_index -= 1;
-                            let selection_index = self.selection_index;
-                            self.scroll_to_stream(selection_index);
+                            self.scroll_to_stream(self.selection_index);
                             return true;
                         }
                     }
                     Key::Down => {
                         if self.selection_index < self.active_streams().len() - 1 {
                             self.selection_index += 1;
-                            let selection_index = self.selection_index;
-                            self.scroll_to_stream(selection_index);
+                            self.scroll_to_stream(self.selection_index);
                             return true;
                         }
                     }
                     Key::Char(' ') => {
-                        {
-                            let stream = self
-                                .streams
-                                .iter_mut()
-                                .filter(|s| s.active)
-                                .nth(self.selection_index)
-                                .unwrap();
-                            stream.expanded = !stream.expanded;
-                        }
-                        let selection_index = self.selection_index;
-                        self.scroll_to_stream(selection_index);
+                        let stream = self
+                            .streams
+                            .iter_mut()
+                            .filter(|s| s.active)
+                            .nth(self.selection_index)
+                            .unwrap();
+                        stream.expanded = !stream.expanded;
+                        self.scroll_to_stream(self.selection_index);
                         return true;
                     }
                     Key::Char('s') => {
@@ -203,25 +198,23 @@ impl Application {
     }
 
     fn scroll_to_stream(&mut self, index: usize) {
+        let active_streams = self.active_streams();
+
+        let streams = match self.scroll_anchor {
+            ScrollAnchor::Top => active_streams[self.scroll_index..].iter().collect::<Vec<_>>(),
+            ScrollAnchor::Bottom => active_streams[..=self.scroll_index].iter().rev().collect::<Vec<_>>(),
+        };
+
         let mut stream_count = 0;
         let mut available_height = self.height - 2;
 
-        {
-            let active_streams = self.active_streams();
-
-            let streams = match self.scroll_anchor {
-                ScrollAnchor::Top => active_streams[self.scroll_index..].iter().collect::<Vec<_>>(),
-                ScrollAnchor::Bottom => active_streams[..=self.scroll_index].iter().rev().collect::<Vec<_>>(),
-            };
-
-            for stream in streams {
-                let height = stream.height();
-                if height > available_height {
-                    break;
-                }
-                stream_count += 1;
-                available_height -= height;
+        for stream in streams {
+            let height = stream.height();
+            if height > available_height {
+                break;
             }
+            stream_count += 1;
+            available_height -= height;
         }
 
         // Only count streams beyond the first
