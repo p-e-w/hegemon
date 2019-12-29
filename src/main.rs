@@ -15,10 +15,10 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #[macro_use]
-extern crate chan;
-extern crate chan_signal;
+extern crate crossbeam_channel;
 extern crate regex;
 extern crate sensors;
+extern crate signal_hook;
 extern crate systemstat;
 extern crate termion;
 
@@ -43,16 +43,12 @@ fn main() {
     let theme = Theme::default();
     terminal.print(application.render(&theme));
 
-    let input = &terminal.input;
-    let resize = &terminal.resize;
-    let mut update = chan::tick(application.interval().duration);
+    let mut update = crossbeam_channel::tick(application.interval().duration);
 
     // Main event loop
     loop {
-        let mut interval_changed = false;
-
-        chan_select! {
-            input.recv() -> event => {
+        select! {
+            recv(terminal.input) -> event => {
                 let interval_index = application.interval_index;
 
                 if application.handle(&event.unwrap()) {
@@ -62,7 +58,7 @@ fn main() {
                     if application.interval_index != interval_index {
                         application.reset_streams();
                         application.update_streams();
-                        interval_changed = true;
+                        update = crossbeam_channel::tick(application.interval().duration);
                     }
                     terminal.print(application.render(&theme));
                 } else {
@@ -70,22 +66,15 @@ fn main() {
                     terminal.print("\x07");
                 }
             },
-            resize.recv() => {
+            recv(terminal.resize) -> _ => {
                 let (width, height) = terminal.size();
                 application.resize(width, height);
                 terminal.print(application.render(&theme));
             },
-            update.recv() => {
+            recv(update) -> _ => {
                 application.update_streams();
                 terminal.print(application.render(&theme));
             },
-        }
-
-        if interval_changed {
-            // Ideally, this would happen inside the `chan_select` invocation above,
-            // but the macro shadows the binding of `update` so the outer declaration
-            // cannot be accessed
-            update = chan::tick(application.interval().duration);
         }
     }
 }

@@ -17,8 +17,8 @@
 use std::io::{self, Write};
 use std::thread;
 
-use chan::{self, Receiver};
-use chan_signal::{self, Signal};
+use crossbeam_channel::{self, Receiver};
+use signal_hook::{iterator::Signals, SIGWINCH};
 use termion::event::Event;
 use termion::input::{MouseTerminal, TermRead};
 use termion::raw::IntoRawMode;
@@ -33,20 +33,29 @@ pub struct Terminal {
     #[allow(dead_code)]
     wrapper: Box<dyn Write>,
     pub input: Receiver<Event>,
-    pub resize: Receiver<Signal>,
+    pub resize: Receiver<bool>,
 }
 
 impl Terminal {
     pub fn new() -> Self {
-        // NOTE: If this line is below `thread::spawn`, resize events are not received
-        // as documented in https://docs.rs/chan-signal/0.3.2/chan_signal/fn.notify.html
-        let resize = chan_signal::notify(&[Signal::WINCH]);
+        // "If you want to avoid the race condition completely,
+        // initialize all signal handling before starting any threads."
+        // (`signal_hook` documentation)
+        let signals = Signals::new(&[SIGWINCH]).unwrap();
 
-        let (input_sender, input) = chan::r#async();
+        let (resize_sender, resize) = crossbeam_channel::unbounded();
+
+        thread::spawn(move || {
+            for _ in &signals {
+                resize_sender.send(true).unwrap();
+            }
+        });
+
+        let (input_sender, input) = crossbeam_channel::unbounded();
 
         thread::spawn(move || {
             for event in io::stdin().events() {
-                input_sender.send(event.unwrap());
+                input_sender.send(event.unwrap()).unwrap();
             }
         });
 

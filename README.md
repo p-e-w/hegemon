@@ -24,7 +24,8 @@ Currently, it has the following features:
 - Select and reorder data streams
 - Mouse control
 
-Hegemon is built around the excellent [chan](https://github.com/BurntSushi/chan),
+Hegemon is built around the excellent
+[crossbeam-channel](https://github.com/crossbeam-rs/crossbeam/tree/master/crossbeam-channel),
 [termion](https://gitlab.redox-os.org/redox-os/termion),
 [systemstat](https://github.com/myfreeweb/systemstat),
 and [sensors](https://github.com/nyantec/sensors) crates.
