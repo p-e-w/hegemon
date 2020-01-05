@@ -18,7 +18,7 @@ use std::io::{self, Write};
 use std::thread;
 
 use crossbeam_channel::{self, Receiver};
-use signal_hook::{iterator::Signals, SIGWINCH};
+use signal_hook::{iterator::Signals, SIGINT, SIGTERM, SIGWINCH};
 use termion::event::Event;
 use termion::input::{MouseTerminal, TermRead};
 use termion::raw::IntoRawMode;
@@ -34,6 +34,7 @@ pub struct Terminal {
     wrapper: Box<dyn Write>,
     pub input: Receiver<Event>,
     pub resize: Receiver<bool>,
+    pub terminate: Receiver<bool>,
 }
 
 impl Terminal {
@@ -41,13 +42,18 @@ impl Terminal {
         // "If you want to avoid the race condition completely,
         // initialize all signal handling before starting any threads."
         // (`signal_hook` documentation)
-        let signals = Signals::new(&[SIGWINCH]).unwrap();
+        let signals = Signals::new(&[SIGWINCH, SIGINT, SIGTERM]).unwrap();
 
         let (resize_sender, resize) = crossbeam_channel::unbounded();
+        let (terminate_sender, terminate) = crossbeam_channel::unbounded();
 
         thread::spawn(move || {
-            for _ in &signals {
-                resize_sender.send(true).unwrap();
+            for signal in &signals {
+                match signal {
+                    SIGWINCH => resize_sender.send(true).unwrap(),
+                    SIGINT | SIGTERM => terminate_sender.send(true).unwrap(),
+                    _ => unreachable!(),
+                }
             }
         });
 
@@ -65,6 +71,7 @@ impl Terminal {
             ))),
             input,
             resize,
+            terminate,
         };
 
         terminal.print(format!(

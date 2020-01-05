@@ -71,6 +71,9 @@ fn main() {
                 application.resize(width, height);
                 terminal.print(application.render(&theme));
             },
+            recv(terminal.terminate) -> _ => {
+                break;
+            },
             recv(update) -> _ => {
                 application.update_streams();
                 terminal.print(application.render(&theme));
