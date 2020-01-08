@@ -13,6 +13,7 @@ name = "hegemon"
 path = "src/main.rs"
 
 [dependencies]
+clap = "2.33.0"
 crossbeam-channel = "0.4.0"
 signal-hook = "0.1.12"
 regex = "1.3.1"

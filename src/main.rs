@@ -15,6 +15,8 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #[macro_use]
+extern crate clap;
+#[macro_use]
 extern crate crossbeam_channel;
 extern crate regex;
 extern crate sensors;
@@ -34,6 +36,8 @@ use crate::terminal::Terminal;
 use crate::theme::Theme;
 
 fn main() {
+    let _matches = app_from_crate!().get_matches();
+
     let terminal = Terminal::new();
     let (width, height) = terminal.size();
 
