@@ -31,17 +31,19 @@ Hegemon is built around the excellent
 and [sensors](https://github.com/nyantec/sensors) crates.
 
 
-## Installation
+## Building
 
 Hegemon is currently **Linux only** and requires **Rust 1.34 or later** and the
 **development files for [libsensors](https://github.com/lm-sensors/lm-sensors).**
 The latter can be found in the package repository of every major Linux distribution,
 e.g. `lm_sensors-devel` in Fedora and `libsensors4-dev` in Ubuntu.
 
-Once these requirements are met, you can install Hegemon with
+Once these requirements are met, Hegemon can be built and run with
 
 ```
-$ cargo install hegemon
+git clone https://github.com/p-e-w/hegemon.git
+cd hegemon
+cargo run
 ```
 
 
