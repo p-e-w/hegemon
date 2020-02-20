@@ -507,19 +507,33 @@ pub fn format_quantity(
 }
 
 fn format_duration(duration: Duration, number_style: impl Display, unit_style: impl Display) -> String {
-    let mut seconds = duration.as_secs();
+    let mut milliseconds = duration.as_millis();
 
-    if seconds == 0 {
+    if milliseconds == 0 {
         return format!("{}0{}s", number_style, unit_style);
     }
 
     let mut string = String::new();
 
-    for (unit, factor) in &[("h", 3600), ("m", 60), ("s", 1)] {
-        if seconds >= *factor {
-            string.push_str(&format!("{}{}{}{}", number_style, seconds / factor, unit_style, unit));
-            seconds %= factor;
+    for (unit, factor) in &[("h", 3_600_000), ("m", 60_000)] {
+        if milliseconds >= *factor {
+            string.push_str(&format!(
+                "{}{}{}{}",
+                number_style,
+                milliseconds / factor,
+                unit_style,
+                unit
+            ));
+            milliseconds %= factor;
         }
+    }
+    if milliseconds > 0 {
+        string.push_str(&format!(
+            "{}{:1}{}s",
+            number_style,
+            milliseconds as f64 / 1000.0,
+            unit_style
+        ));
     }
 
     string
