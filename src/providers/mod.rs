@@ -17,6 +17,7 @@
 mod cpu;
 mod fan;
 mod memory;
+mod network;
 mod temperature;
 
 use sensors::{FeatureType, Sensors, Subfeature, SubfeatureType};
@@ -24,6 +25,7 @@ use sensors::{FeatureType, Sensors, Subfeature, SubfeatureType};
 use self::cpu::CPUStreamProvider;
 use self::fan::FanStreamProvider;
 use self::memory::MemoryStreamProvider;
+use self::network::BandwidthStreamProvider;
 use self::temperature::TemperatureStreamProvider;
 use crate::stream::{Stream, StreamProvider};
 
@@ -33,6 +35,7 @@ pub fn streams() -> Vec<Box<dyn Stream>> {
         Box::new(MemoryStreamProvider {}),
         Box::new(TemperatureStreamProvider {}),
         Box::new(FanStreamProvider {}),
+        Box::new(BandwidthStreamProvider {}),
     ];
 
     providers.iter().flat_map(|p| p.streams()).collect()
