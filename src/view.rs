@@ -21,8 +21,8 @@ use std::time::Duration;
 
 use regex::Regex;
 use termion::color::{Bg, Fg};
+use termion::cursor;
 use termion::style::Reset;
-use termion::{clear, cursor};
 
 use crate::model::{Application, MenuItem, Screen, ScrollAnchor, StreamWrapper};
 use crate::theme::Theme;
@@ -38,7 +38,7 @@ const BARS: &[&str] = &[
 
 impl Application {
     pub fn render(&self, theme: &Theme) -> String {
-        let mut string = format!("{}{}{}", clear::All, cursor::Goto(1, 1), Reset);
+        let mut string = format!("{}{}", cursor::Goto(1, 1), Reset);
 
         match self.screen {
             Screen::Main => {
