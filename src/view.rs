@@ -375,46 +375,40 @@ impl StreamWrapper {
                     (String::new(), String::new(), String::new(), String::new())
                 };
 
-            lines.push(format!(
-                "{}{} {} {}",
-                Bg(background_color),
-                pad_left(max_string, name_width),
-                graph_rows[0],
-                " ".repeat(value_width),
-            ));
+            let y_mid = EXPANDED_GRAPH_HEIGHT / 2;
+            let y_max = EXPANDED_GRAPH_HEIGHT - 1;
 
-            lines.push(format!(
-                "{}{} {} {}{}",
-                Bg(background_color),
-                " ".repeat(name_width),
-                graph_rows[1],
-                Fg(theme.stream_description_color),
-                pad_right(stats_label, value_width),
-            ));
+            for (y, row) in graph_rows.iter().enumerate() {
+                let left_axis = if y == 0 {
+                    &max_string
+                } else if y == y_mid {
+                    &mid_string
+                } else if y == y_max {
+                    &min_string
+                } else {
+                    ""
+                };
+                let right_axis = if y == y_max - 3 {
+                    &stats_label
+                } else if y == y_max - 2 {
+                    &low_string
+                } else if y == y_max - 1 {
+                    &high_string
+                } else if y == y_max {
+                    &avg_string
+                } else {
+                    ""
+                };
 
-            lines.push(format!(
-                "{}{} {} {}",
-                Bg(background_color),
-                pad_left(mid_string, name_width),
-                graph_rows[2],
-                pad_right(low_string, value_width),
-            ));
-
-            lines.push(format!(
-                "{}{} {} {}",
-                Bg(background_color),
-                " ".repeat(name_width),
-                graph_rows[3],
-                pad_right(high_string, value_width),
-            ));
-
-            lines.push(format!(
-                "{}{} {} {}",
-                Bg(background_color),
-                pad_left(min_string, name_width),
-                graph_rows[4],
-                pad_right(avg_string, value_width),
-            ));
+                lines.push(format!(
+                    "{}{} {} {}{}",
+                    Bg(background_color),
+                    pad_left(left_axis, name_width),
+                    row,
+                    Fg(theme.stream_description_color),
+                    pad_right(right_axis, value_width)
+                ));
+            }
         } else {
             line.push_str(&format!(
                 "{} {}",
