@@ -78,16 +78,19 @@ impl Application {
             scroll_index: 0,
             scroll_anchor: ScrollAnchor::Top,
             intervals: vec![
-                Interval::new(1, 10),
-                Interval::new(2, 10),
-                Interval::new(3, 10),
-                Interval::new(5, 12),
-                Interval::new(10, 12),
-                Interval::new(30, 10),
-                Interval::new(60, 10),
-                Interval::new(300, 12),
+                Interval::new(100, 10),
+                Interval::new(200, 10),
+                Interval::new(500, 10),
+                Interval::new(1_000, 10),
+                Interval::new(2_000, 15),
+                Interval::new(3_000, 10),
+                Interval::new(5_000, 12),
+                Interval::new(10_000, 12),
+                Interval::new(30_000, 10),
+                Interval::new(60_000, 10),
+                Interval::new(300_000, 12),
             ],
-            interval_index: 2,
+            interval_index: 3,
             menus,
         }
     }
@@ -306,9 +309,9 @@ pub struct Interval {
 }
 
 impl Interval {
-    fn new(seconds: u64, tick_spacing: usize) -> Self {
+    fn new(milliseconds: u64, tick_spacing: usize) -> Self {
         Interval {
-            duration: Duration::from_secs(seconds),
+            duration: Duration::from_millis(milliseconds),
             tick_spacing,
         }
     }
